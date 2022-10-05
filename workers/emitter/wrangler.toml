@@ -1,0 +1,13 @@
+name = "emitter-service"
+main = "./src/index.ts"
+compatibility_date = "2022-10-04"
+compatibility_flags = ["streams_enable_constructors"]
+
+[durable_objects]
+bindings = [
+  { name = "DO_EMITTER", class_name = "EmitterDurableObject" },
+]
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["EmitterDurableObject"] # Array of new classes

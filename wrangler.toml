@@ -3,7 +3,12 @@ name = "me-portfolio"
 workers_dev = true
 main = "./build/index.js"
 # https://developers.cloudflare.com/workers/platform/compatibility-dates
-compatibility_date = "2022-04-05"
+compatibility_date = "2022-01-12"
+compatibility_flags = ["streams_enable_constructors"]
+
+services = [
+  { binding = "EMITTER", service = "emitter-service" }
+]
 
 [site]
   bucket = "./public"

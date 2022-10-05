@@ -6,10 +6,10 @@
     "build:css": "tailwindcss -m -i ./app/styles/styles.css -o app/styles/app.css",
     "deploy": "wrangler publish",
     "dev:remix": "remix watch",
-    "dev:wrangler": "cross-env NODE_ENV=development miniflare ./build/index.js --watch",
+    "dev:wrangler": "wrangler dev ./build/index.js --local",
     "dev:css": "tailwindcss -w -i ./app/styles/styles.css -o app/styles/app.css",
-    "dev": "remix build && run-p \"dev:*\"",
-    "start": "cross-env NODE_ENV=production miniflare ./build/index.js"
+    "dev": "cross-env NODE_ENV=development remix build && run-p \"dev:*\"",
+    "start": "cross-env NODE_ENV=production wrangler dev ./build/index.js --local"
   },
   "dependencies": {
     "@react-three/drei": "^9.32.7",
@@ -41,5 +41,8 @@
   },
   "engines": {
     "node": ">=14"
-  }
+  },
+  "workspaces": [
+    "workers/*"
+  ]
 }

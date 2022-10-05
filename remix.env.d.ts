@@ -6,5 +6,6 @@ import "@remix-run/cloudflare";
 declare module "@remix-run/cloudflare" {
   interface AppLoadContext {
     cf: IncomingRequestCfProperties;
+    EMITTER: { fetch: typeof fetch };
   }
 }
