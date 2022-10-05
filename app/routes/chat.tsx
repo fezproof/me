@@ -4,9 +4,11 @@ import { useEffect, useRef } from "react";
 import { useEventStream } from "~/hooks/useEventStream";
 
 export const action = async ({ request, context }: ActionArgs) => {
+  const url = new URL(request.url);
+
   const { message } = Object.fromEntries(await request.formData());
 
-  context.EMITTER.fetch("/", {
+  await context.EMITTER.fetch(`${url.origin}/`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -58,7 +60,7 @@ export default () => {
             })}
           </div>
 
-          <Form method="post" ref={formRef} className="mt-4">
+          <Form method="post" ref={formRef} className="mt-4" autoComplete="off">
             <input
               className="bg-gray-800 block w-full px-4 py-2 rounded-md"
               type="text"

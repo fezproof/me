@@ -18,13 +18,7 @@ export class EmitterDurableObject implements DurableObject {
     }
 
     if (request.method === "GET") {
-      return eventStream(request, (send) => {
-        const handle = (message: string) => {
-          send("message", message);
-        };
-
-        return this.emitter.on("chatMessageReceived", handle);
-      });
+      return this.handleMessageSubscribe(request);
     }
 
     throw new Error("Method not implemented");
@@ -53,18 +47,14 @@ export class EmitterDurableObject implements DurableObject {
   async handleMessageSubscribe(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
-    const channel = url.pathname;
-
-    if (url.pathname.split("/").length > 1) {
-      return new Response("Request must have a topic", { status: 400 });
-    }
+    const [, topic] = url.pathname.split("/");
 
     return eventStream(request, (send) => {
       const handle = (message: string) => {
         send("message", message);
       };
 
-      return this.emitter.on(channel, handle);
+      return this.emitter.on(topic, handle);
     });
   }
 }

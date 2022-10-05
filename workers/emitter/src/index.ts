@@ -9,7 +9,7 @@ const worker: ExportedHandler<Environment> = {
     const id = env.DO_EMITTER.idFromName("A");
     const obj = env.DO_EMITTER.get(id);
 
-    return obj.fetch(request.clone());
+    return obj.fetch(request);
   },
 };
 
