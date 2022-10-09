@@ -1,10 +1,10 @@
 import type { ActionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { Form, useTransition } from "@remix-run/react";
+import { Form, useParams, useTransition } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import { useEventStream } from "~/hooks/useEventStream";
 
-export const action = async ({ request, context }: ActionArgs) => {
+export const action = async ({ request, context, params }: ActionArgs) => {
   const url = new URL(request.url);
 
   const { message } = Object.fromEntries(await request.formData());
@@ -17,7 +17,7 @@ export const action = async ({ request, context }: ActionArgs) => {
     body: JSON.stringify({
       data: message,
       topic: "chatMessageReceived",
-      channel: "A",
+      channel: params.channel,
     }),
   });
 
@@ -25,7 +25,8 @@ export const action = async ({ request, context }: ActionArgs) => {
 };
 
 export default () => {
-  const { allMessages } = useEventStream("/chat/events");
+  const { channel } = useParams();
+  const { allMessages } = useEventStream(`/chat/${channel}/events`);
 
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
