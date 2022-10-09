@@ -1,12 +1,20 @@
 import { createEventHandler } from "@remix-run/cloudflare-workers";
 import * as build from "@remix-run/dev/server-build";
 
-const emitter = global.EMITTER ?? {
+// global emitter to make it work locally
+const hasGlobalEmitter = !!global.EMITTER
+const emitter = {
   fetch: async (request, requestInit) => {
+    const url = new URL(request);
 
-    const origin = 'http://localhost:8788';
+    if (!hasGlobalEmitter) {
+      url.hostname = 'localhost';
+      url.port = '8788';
+    }
 
-    return fetch(`${origin}${request}`, requestInit);
+    const fetchFunc = hasGlobalEmitter ? global.EMITTER.fetch : fetch;
+
+    return fetchFunc(url.toString(), requestInit);
   }
 }
 
@@ -16,7 +24,6 @@ addEventListener(
     const handler = createEventHandler({
       build, mode: process.env.NODE_ENV, getLoadContext: () => ({
         cf: event.request.cf,
-        // eslint-disable-next-line no-undef
         EMITTER: emitter,
       })
     })
