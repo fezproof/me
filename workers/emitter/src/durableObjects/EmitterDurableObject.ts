@@ -1,18 +1,8 @@
 import { createNanoEvents } from "nanoevents";
-import { z } from "zod";
 import type { JSONValue } from "../helpers/eventStream";
 import { eventStream } from "../helpers/eventStream";
-
-const receiveEventSchema = z.object({
-  data: z.string(),
-  topic: z.string(),
-  channel: z.string(),
-});
-
-const subscribeParamsSchema = z.object({
-  topic: z.string(),
-  channel: z.string().optional(),
-});
+import { receiveEventSchema } from "../schemas/receiveEventSchema";
+import { subscribeParamsSchema } from "../schemas/subscribeParamsSchema";
 
 type Emitter = Record<string, (data: JSONValue) => void>;
 
@@ -20,8 +10,6 @@ export class EmitterDurableObject implements DurableObject {
   emitter = createNanoEvents<Emitter>();
 
   async fetch(request: Request): Promise<Response> {
-    console.log(request.method, request.url);
-
     if (request.method === "POST") {
       return this.handleMessageReceived(request);
     }
@@ -88,7 +76,7 @@ export class EmitterDurableObject implements DurableObject {
 
     return eventStream(request, (send) => {
       const handle = (data: JSONValue) => {
-        send("message", { topic, channel: channel ?? "A", data });
+        send("message", { topic, channel: channel, data });
       };
 
       return this.emitter.on(topic, handle);

@@ -9,7 +9,7 @@ export const action = async ({ request, context }: ActionArgs) => {
 
   const { message } = Object.fromEntries(await request.formData());
 
-  await context.EMITTER.fetch(`${url.origin}/`, {
+  await context.EMITTER.fetch(`${url.origin}/send`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
