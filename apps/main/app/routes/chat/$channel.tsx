@@ -82,7 +82,13 @@ export default () => {
             })}
           </div>
 
-          <Form method="post" ref={formRef} className="mt-4" autoComplete="off">
+          <Form
+            method="post"
+            ref={formRef}
+            className="mt-4"
+            autoComplete="off"
+            replace
+          >
             <input
               className="bg-gray-800 block w-full px-4 py-2 rounded-md"
               type="text"
