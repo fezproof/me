@@ -12,9 +12,11 @@ const emitter = {
       url.port = '8788';
     }
 
-    const fetchFunc = hasGlobalEmitter ? global.EMITTER.fetch : fetch;
+    if (hasGlobalEmitter) {
+      return global.EMITTER?.fetch(url.toString(), requestInit);
+    }
 
-    return fetchFunc(url.toString(), requestInit);
+    return fetch(url.toString(), requestInit);
   }
 }
 

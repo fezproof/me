@@ -1,4 +1,5 @@
 import type { ActionArgs } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
 import { Form, useTransition } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import { useEventStream } from "~/hooks/useEventStream";
@@ -16,7 +17,7 @@ export const action = async ({ request, context }: ActionArgs) => {
     body: JSON.stringify({ data: message, topic: "chatMessageReceived" }),
   });
 
-  return { ok: true };
+  return json({ ok: true });
 };
 
 export default () => {

@@ -59,7 +59,12 @@ export class EmitterDurableObject implements DurableObject {
 
     this.emitter.emit(topic, data);
 
-    return new Response("ok");
+    return new Response(JSON.stringify({ data, topic }), {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      status: 200,
+    });
   }
 
   async handleMessageSubscribe(request: Request): Promise<Response> {
