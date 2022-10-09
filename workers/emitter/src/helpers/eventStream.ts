@@ -3,36 +3,46 @@ export type SendFunction = (event: string, data: string) => void;
 type InitFunction = (send: SendFunction) => () => void;
 
 export function eventStream(request: Request, init: InitFunction) {
-  const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
+  const { readable, writable } = new TransformStream();
 
-      const send: SendFunction = (event, data) => {
-        controller.enqueue(encoder.encode(`event: ${event}\n`));
-        controller.enqueue(encoder.encode(`data: ${data}\n\n`));
-      };
-      const cleanup = init(send);
+  const writeStream = writable.getWriter();
 
-      let closed = false;
+  const encoder = new TextEncoder();
 
-      const close = () => {
-        if (closed) return;
+  const send: SendFunction = (event, data) => {
+    writeStream.write(encoder.encode(`event: ${event}\n`));
+    writeStream.write(encoder.encode(`data: ${data}\n\n`));
+  };
 
-        cleanup();
-        closed = true;
-        request.signal.removeEventListener("abort", close);
-        controller.close();
-      };
+  const cleanup = init(send);
 
-      request.signal.addEventListener("abort", close);
+  let closed = false;
 
-      if (request.signal.aborted) {
-        close();
-      }
-    },
+  const close = () => {
+    if (closed) return;
+
+    cleanup();
+    closed = true;
+    request.signal.removeEventListener("abort", close);
+    writable.close();
+  };
+
+  request.signal.addEventListener("abort", close);
+
+  writeStream.closed.then(() => {
+    close();
   });
 
-  return new Response(stream, {
-    headers: { "Content-Type": "text/event-stream" },
+  if (request.signal.aborted) {
+    close();
+  }
+
+  return new Response(readable, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
   });
 }
