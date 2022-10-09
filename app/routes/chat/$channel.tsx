@@ -1,8 +1,24 @@
-import type { ActionArgs } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
-import { Form, useParams, useTransition } from "@remix-run/react";
+import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
+import { json, redirect } from "@remix-run/cloudflare";
+import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import { useEventStream } from "~/hooks/useEventStream";
+
+export const loader = async ({ params, context, request }: LoaderArgs) => {
+  if (!params.channel) return redirect("/chat", 301);
+
+  const url = new URL(request.url);
+
+  const result = await context.EMITTER.fetch(
+    `${url.origin}/channel/${params.channel}`
+  );
+
+  if (!result.ok) {
+    return redirect("/chat", 301);
+  }
+
+  return json({ channel: params.channel });
+};
 
 export const action = async ({ request, context, params }: ActionArgs) => {
   const url = new URL(request.url);
@@ -25,7 +41,7 @@ export const action = async ({ request, context, params }: ActionArgs) => {
 };
 
 export default () => {
-  const { channel } = useParams();
+  const { channel } = useLoaderData<typeof loader>();
   const { allMessages } = useEventStream(`/chat/${channel}/events`);
 
   const formRef = useRef<HTMLFormElement>(null);

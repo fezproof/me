@@ -25,7 +25,7 @@ router.get(
 
     console.log("SUBSCRIBE: ", { topic, channel });
 
-    const id = env.DO_EMITTER.idFromName(channel);
+    const id = env.DO_EMITTER.idFromString(channel);
     const obj = env.DO_EMITTER.get(id);
 
     return obj.fetch(`https://emitter.io/?topic=${topic}&channel=${channel}`);
@@ -53,9 +53,9 @@ router.post("/send", async (request, env: Environment) => {
 
   const { channel, data, topic } = parsedResult.data;
 
-  console.log("SEND: ", { topic, channel, data });
+  console.log("SEND: ", { topic, channel });
 
-  const id = env.DO_EMITTER.idFromName(channel);
+  const id = env.DO_EMITTER.idFromString(channel);
   const obj = env.DO_EMITTER.get(id);
 
   return obj.fetch(`https://emitter.io/`, {
@@ -65,6 +65,25 @@ router.post("/send", async (request, env: Environment) => {
     },
     method: "POST",
   });
+});
+
+router.get("/channel/new", async (_, env: Environment) => {
+  const id = env.DO_EMITTER.newUniqueId();
+
+  return new Response(id.toString(), { status: 200 });
+});
+
+router.get("/channel/:channel", async ({ params }, env: Environment) => {
+  if (!params?.channel) {
+    return new Response("Channel not supplied", { status: 400 });
+  }
+
+  try {
+    const id = env.DO_EMITTER.idFromString(params?.channel);
+    return new Response(id.toString(), { status: 200 });
+  } catch {
+    return new Response("Channel not valid", { status: 400 });
+  }
 });
 
 router.all("*", () => new Response("Not Found.", { status: 404 }));
