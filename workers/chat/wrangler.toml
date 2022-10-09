@@ -1,0 +1,6 @@
+name = "chat-service"
+main = "./src/index.ts"
+compatibility_date = "2022-10-04"
+compatibility_flags = ["streams_enable_constructors"]
+workers_dev = false
+account_id = "90101201ef6f6f2b460284210d2037db"

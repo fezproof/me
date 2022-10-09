@@ -1,10 +1,10 @@
 {
-  "name": "@worker/emitter",
+  "name": "@worker/chat",
   "private": true,
   "version": "0.0.0",
   "scripts": {
     "deploy": "wrangler publish",
-    "dev": "wrangler dev --local --port 8788"
+    "dev": "wrangler dev --local --port 8789"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.0.0",
