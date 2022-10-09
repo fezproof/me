@@ -13,7 +13,7 @@ export const action = async ({ request, context }: ActionArgs) => {
     headers: {
       "content-type": "application/json",
     },
-    body: JSON.stringify({ data: message, type: "chatMessageReceived" }),
+    body: JSON.stringify({ data: message, topic: "chatMessageReceived" }),
   });
 
   return { ok: true };

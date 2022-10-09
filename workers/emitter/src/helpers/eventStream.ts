@@ -1,4 +1,14 @@
-export type SendFunction = (event: string, data: string) => void;
+export type JSONValue = string | number | boolean | JSONObject | JSONArray;
+
+interface JSONObject {
+  [x: string]: JSONValue;
+}
+
+interface JSONArray extends Array<JSONValue> {}
+
+export type Event = { data: JSONValue; topic: string; channel: string };
+
+export type SendFunction = (event: string, data: Event) => void;
 
 type InitFunction = (send: SendFunction) => () => void;
 
@@ -11,7 +21,7 @@ export function eventStream(request: Request, init: InitFunction) {
 
   const send: SendFunction = (event, data) => {
     writeStream.write(encoder.encode(`event: ${event}\n`));
-    writeStream.write(encoder.encode(`data: ${data}\n\n`));
+    writeStream.write(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
   };
 
   const cleanup = init(send);

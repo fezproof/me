@@ -7,8 +7,15 @@ export const useEventStream = (href: string) => {
     const eventSource = new EventSource(href);
 
     const handler = (event: MessageEvent) => {
-      console.log(event);
-      setData((previous) => [...previous, event.data || "unknown"]);
+      const { topic, channel, data } = JSON.parse(event.data) as {
+        data: unknown;
+        topic: string;
+        channel: string;
+      };
+
+      console.log(topic, channel);
+
+      setData((previous) => [...previous, (data as string) || "unknown"]);
     };
 
     eventSource.addEventListener("message", handler);

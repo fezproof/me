@@ -1,14 +1,22 @@
 import { createNanoEvents } from "nanoevents";
 import { z } from "zod";
+import type { JSONValue } from "../helpers/eventStream";
 import { eventStream } from "../helpers/eventStream";
 
-const receiveEvent = z.object({
+const receiveEventSchema = z.object({
   data: z.string(),
-  type: z.string(),
+  topic: z.string(),
 });
 
+const subscribeParamsSchema = z.object({
+  topic: z.string(),
+  channel: z.string().optional(),
+});
+
+type Emitter = Record<string, (data: JSONValue) => void>;
+
 export class EmitterDurableObject implements DurableObject {
-  emitter = createNanoEvents();
+  emitter = createNanoEvents<Emitter>();
 
   async fetch(request: Request): Promise<Response> {
     console.log(request.method, request.url);
@@ -31,7 +39,7 @@ export class EmitterDurableObject implements DurableObject {
 
     const result = await request.json();
 
-    const parsedResult = receiveEvent.safeParse(result);
+    const parsedResult = receiveEventSchema.safeParse(result);
 
     if (!parsedResult.success) {
       return new Response("Request does not match event shape", {
@@ -39,7 +47,17 @@ export class EmitterDurableObject implements DurableObject {
       });
     }
 
-    this.emitter.emit(parsedResult.data.type, parsedResult.data.data);
+    const { data: rawData, topic } = parsedResult.data;
+
+    let data: JSONValue;
+
+    try {
+      data = JSON.parse(rawData);
+    } catch (error) {
+      data = rawData;
+    }
+
+    this.emitter.emit(topic, data);
 
     return new Response("ok");
   }
@@ -47,11 +65,24 @@ export class EmitterDurableObject implements DurableObject {
   async handleMessageSubscribe(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
-    const [, topic] = url.pathname.split("/");
+    const params = Object.fromEntries(url.searchParams);
+
+    const result = subscribeParamsSchema.safeParse(params);
+
+    if (!result.success) {
+      return new Response(
+        `Paramerters for subscribe does not match event shape: ${result.error.message}`,
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const { topic, channel } = result.data;
 
     return eventStream(request, (send) => {
-      const handle = (message: string) => {
-        send("message", message);
+      const handle = (data: JSONValue) => {
+        send("message", { topic, channel: channel ?? "A", data });
       };
 
       return this.emitter.on(topic, handle);
