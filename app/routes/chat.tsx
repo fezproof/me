@@ -14,7 +14,11 @@ export const action = async ({ request, context }: ActionArgs) => {
     headers: {
       "content-type": "application/json",
     },
-    body: JSON.stringify({ data: message, topic: "chatMessageReceived" }),
+    body: JSON.stringify({
+      data: message,
+      topic: "chatMessageReceived",
+      channel: "A",
+    }),
   });
 
   return json({ ok: true });

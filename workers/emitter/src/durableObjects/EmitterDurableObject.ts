@@ -6,6 +6,7 @@ import { eventStream } from "../helpers/eventStream";
 const receiveEventSchema = z.object({
   data: z.string(),
   topic: z.string(),
+  channel: z.string(),
 });
 
 const subscribeParamsSchema = z.object({
@@ -47,7 +48,7 @@ export class EmitterDurableObject implements DurableObject {
       });
     }
 
-    const { data: rawData, topic } = parsedResult.data;
+    const { data: rawData, topic, channel } = parsedResult.data;
 
     let data: JSONValue;
 
@@ -59,7 +60,7 @@ export class EmitterDurableObject implements DurableObject {
 
     this.emitter.emit(topic, data);
 
-    return new Response(JSON.stringify({ data, topic }), {
+    return new Response(JSON.stringify({ data, topic, channel }), {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
