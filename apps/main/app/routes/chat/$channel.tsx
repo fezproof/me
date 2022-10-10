@@ -1,7 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
-import { Form, useLoaderData, useTransition } from "@remix-run/react";
+import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
+import classNames from "classnames";
 import { useEffect, useRef } from "react";
+import Bench from "~/components/Bench";
+import Button from "~/components/Button";
 import { useEventStream } from "~/hooks/useEventStream";
 
 export const loader = async ({ params, context, request }: LoaderArgs) => {
@@ -17,7 +20,13 @@ export const loader = async ({ params, context, request }: LoaderArgs) => {
     return redirect("/chat", 301);
   }
 
-  return json({ channel: params.channel });
+  const roomUrl = new URL(`/chat/${params.channel}`, url);
+
+  return json({
+    channel: params.channel,
+    id: context.cf.asn,
+    roomLink: roomUrl.toString(),
+  });
 };
 
 export const action = async ({ request, context, params }: ActionArgs) => {
@@ -25,13 +34,17 @@ export const action = async ({ request, context, params }: ActionArgs) => {
 
   const { message } = Object.fromEntries(await request.formData());
 
+  if (!message) {
+    return json({ ok: true });
+  }
+
   await context.EMITTER.fetch(`${url.origin}/send`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      data: message,
+      data: { message, sender: context.cf.asn },
       topic: "chatMessageReceived",
       channel: params.channel,
     }),
@@ -41,8 +54,12 @@ export const action = async ({ request, context, params }: ActionArgs) => {
 };
 
 export default () => {
-  const { channel } = useLoaderData<typeof loader>();
-  const { allMessages } = useEventStream(`/chat/${channel}/events`);
+  const { channel, id, roomLink } = useLoaderData<typeof loader>();
+  console.log(roomLink);
+
+  const { allMessages } = useEventStream<{ message: string; sender: number }>(
+    `/chat/${channel}/events`
+  );
 
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,27 +78,14 @@ export default () => {
     scrollRef.current?.scroll({ top: scrollRef.current.scrollHeight });
   }, [allMessages.length]);
 
-  return (
-    <div className="text-white p-8">
-      <h1 className="mb-4 text-lg">Chat app</h1>
-      <div className="absolute bottom-4 left-4 right-4 flex flex-col items-center">
-        <div className="w-full max-w-lg border-2 border-gray-800 rounded-2xl p-4 h-96 flex flex-col flex-nowrap">
-          <div
-            className="flex-1 flex flex-col gap-4 overflow-y-auto"
-            ref={scrollRef}
-          >
-            {allMessages.map((message, index) => {
-              return (
-                <p
-                  className="bg-red-300 text-black px-4 py-2 rounded-md"
-                  key={index}
-                >
-                  {message}
-                </p>
-              );
-            })}
-          </div>
+  const copyRoomLink = () => {
+    navigator.clipboard.writeText(roomLink);
+  };
 
+  return (
+    <div className="p-8">
+      <div className="absolute bottom-4 left-4 right-4 top-32 flex flex-col items-center">
+        <div className="flex h-full w-full max-w-lg flex-col-reverse flex-nowrap p-4">
           <Form
             method="post"
             ref={formRef}
@@ -90,14 +94,48 @@ export default () => {
             replace
           >
             <input
-              className="bg-gray-800 block w-full px-4 py-2 rounded-md"
+              className="block w-full rounded-md bg-slate-200 px-4 py-2 outline-none ring-black focus:ring-2 dark:bg-slate-600 dark:ring-white"
               type="text"
               name="message"
+              required
               ref={inputRef}
             />
           </Form>
+
+          <div
+            className="flex flex-1 flex-col gap-4 overflow-y-auto"
+            ref={scrollRef}
+          >
+            {allMessages.map(({ message, sender }, index) => {
+              return (
+                <p
+                  className={classNames(
+                    "max-w-[30ch] rounded-md bg-blue-200 px-4 py-2 text-sm dark:bg-blue-800",
+                    {
+                      "mr-auto": sender !== id,
+                      "ml-auto": sender === id,
+                    }
+                  )}
+                  key={index}
+                >
+                  {message}
+                </p>
+              );
+            })}
+          </div>
+
+          <div className="mb-8 flex flex-row flex-nowrap items-center gap-4">
+            <span className="overflow-hidden text-ellipsis">{roomLink}</span>
+            <Button type="button" onClick={copyRoomLink}>
+              Copy room link
+            </Button>
+          </div>
         </div>
       </div>
+
+      <Link to="/chat">
+        <Bench className="inline-block text-3xl" end="at" />
+      </Link>
     </div>
   );
 };

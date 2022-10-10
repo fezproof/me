@@ -1,28 +1,22 @@
-import type { LoaderArgs } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
-
-export const loader = async ({ request, context }: LoaderArgs) => {
-  return json({
-    position: {
-      latitude: context.cf.latitude,
-      longitude: context.cf.longitude,
-    },
-    location: {
-      city: context.cf.city,
-      country: context.cf.country,
-    },
-  });
-};
+import { Link } from "@remix-run/react";
+import Bench from "~/components/Bench";
+import Button from "~/components/Button";
 
 export default function Index() {
   return (
-    <div className="fixed inset-0 h-full w-full flex flex-row flex-nowrap items-center justify-center">
+    <div className="fixed inset-0 flex h-full w-full flex-row flex-nowrap items-center justify-center">
       <div className="text-center">
-        <h1 className="text-6xl mb-4">
-          <span className="font-bold">Ben Ch</span>
-          <span className="text-gray-700 dark:text-gray-200">idlow</span>
-        </h1>
-        <h2>More coming soon...</h2>
+        <header className="mb-12">
+          <Bench end=".codes" className="mb-4 text-5xl" />
+          <h2>More coming soon...</h2>
+        </header>
+        <main>
+          <div className="mb-8 flex flex-row flex-nowrap items-center justify-center gap-8">
+            <Button as={Link} to="/chat">
+              BenChat
+            </Button>
+          </div>
+        </main>
       </div>
     </div>
   );

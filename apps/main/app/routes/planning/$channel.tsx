@@ -62,18 +62,18 @@ export default () => {
   }, [allMessages.length]);
 
   return (
-    <div className="text-white p-8">
+    <div className="p-8 text-white">
       <h1 className="mb-4 text-lg">Chat app</h1>
       <div className="absolute bottom-4 left-4 right-4 flex flex-col items-center">
-        <div className="w-full max-w-lg border-2 border-gray-800 rounded-2xl p-4 h-96 flex flex-col flex-nowrap">
+        <div className="flex h-96 w-full max-w-lg flex-col flex-nowrap rounded-2xl border-2 border-gray-800 p-4">
           <div
-            className="flex-1 flex flex-col gap-4 overflow-y-auto"
+            className="flex flex-1 flex-col gap-4 overflow-y-auto"
             ref={scrollRef}
           >
             {allMessages.map((message, index) => {
               return (
                 <p
-                  className="bg-red-300 text-black px-4 py-2 rounded-md"
+                  className="rounded-md bg-red-300 px-4 py-2 text-black"
                   key={index}
                 >
                   {message}
@@ -90,7 +90,7 @@ export default () => {
             replace
           >
             <input
-              className="bg-gray-800 block w-full px-4 py-2 rounded-md"
+              className="block w-full rounded-md bg-gray-800 px-4 py-2"
               type="text"
               name="message"
               ref={inputRef}

@@ -6,8 +6,9 @@
     "build": "turbo run build",
     "deploy": "turbo run deploy"
   },
-  "dependencies": {},
   "devDependencies": {
+    "prettier": "^2.7.1",
+    "prettier-plugin-tailwindcss": "^0.1.13",
     "turbo": "^1.5.5"
   },
   "engines": {

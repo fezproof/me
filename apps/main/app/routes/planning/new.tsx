@@ -17,12 +17,12 @@ export const action = async ({ request, context }: ActionArgs) => {
 export default () => {
   const actionData = useActionData();
   return (
-    <div className="text-white p-8">
+    <div className="p-8 text-white">
       <h1 className="mb-4 text-lg">Chat app</h1>
 
       <Form method="post" className="mb-4">
         <input type="text" name="name" />
-        <button type="submit" className="px-4 py-2 bg-gray-700 rounded">
+        <button type="submit" className="rounded bg-gray-700 px-4 py-2">
           Create new game
         </button>
       </Form>
