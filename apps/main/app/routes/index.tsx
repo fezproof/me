@@ -19,10 +19,10 @@ export default function Index() {
     <div className="fixed inset-0 h-full w-full flex flex-row flex-nowrap items-center justify-center">
       <div className="text-center">
         <h1 className="text-6xl mb-4">
-          <span className="text-white font-bold">Ben Ch</span>
-          <span className="text-gray-200">idlow</span>
+          <span className="font-bold">Ben Ch</span>
+          <span className="text-gray-700 dark:text-gray-200">idlow</span>
         </h1>
-        <h2 className="text-white">More coming soon...</h2>
+        <h2>More coming soon...</h2>
       </div>
     </div>
   );
