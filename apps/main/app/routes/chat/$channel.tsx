@@ -58,7 +58,6 @@ export const action = async ({ request, context, params }: ActionArgs) => {
 
 export default () => {
   const { channel, id, roomLink } = useLoaderData<typeof loader>();
-  console.log(roomLink);
 
   const { allMessages } = useEventStream<{ message: string; senderId: string }>(
     `/chat/${channel}/events`
