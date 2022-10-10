@@ -1,4 +1,4 @@
-name = "chat-service"
+name = "planning-service"
 main = "./src/index.ts"
 compatibility_date = "2022-10-04"
 compatibility_flags = ["streams_enable_constructors"]
