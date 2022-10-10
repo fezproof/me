@@ -11,6 +11,10 @@ services = [
   { binding = "EMITTER", service = "emitter-service" }
 ]
 
+routes = [
+    { pattern = "bench.codes/*", zone_id = "bench.codes" }
+]
+
 [site]
   bucket = "./public"
 
