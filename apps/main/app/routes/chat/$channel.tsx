@@ -128,7 +128,9 @@ export default () => {
           </div>
 
           <div className="mb-8 flex flex-row flex-nowrap items-center gap-4">
-            <span className="overflow-hidden text-ellipsis">{roomLink}</span>
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+              {roomLink}
+            </span>
             <Button type="button" onClick={copyRoomLink}>
               Copy room link
             </Button>
