@@ -1,3 +1,4 @@
+name: Deploy
 on:
   push:
     branches:
@@ -6,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Deploy to Cloudflare
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,11 +20,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Wrangler Login
-        uses: cloudflare/wrangler-action@2.0.0
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: login
-
       - name: Deploy everything
         run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
