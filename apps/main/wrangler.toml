@@ -12,7 +12,7 @@ services = [
 ]
 
 routes = [
-    { pattern = "bench.codes/*", zone_id = "bench.codes" }
+    { pattern = "bench.codes/*", zone_id = "dc9eaf8d75b5c2f5e391a278b718ec90" }
 ]
 
 [site]
