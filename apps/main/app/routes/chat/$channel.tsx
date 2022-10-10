@@ -24,7 +24,7 @@ export const loader = async ({ params, context, request }: LoaderArgs) => {
 
   return json({
     channel: params.channel,
-    id: context.cf.asn,
+    id: request.headers.get("CF-Connecting-IP") as string,
     roomLink: roomUrl.toString(),
   });
 };
@@ -44,7 +44,10 @@ export const action = async ({ request, context, params }: ActionArgs) => {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      data: { message, sender: context.cf.asn },
+      data: {
+        message,
+        senderId: request.headers.get("CF-Connecting-IP") as string,
+      },
       topic: "chatMessageReceived",
       channel: params.channel,
     }),
@@ -57,7 +60,7 @@ export default () => {
   const { channel, id, roomLink } = useLoaderData<typeof loader>();
   console.log(roomLink);
 
-  const { allMessages } = useEventStream<{ message: string; sender: number }>(
+  const { allMessages } = useEventStream<{ message: string; senderId: string }>(
     `/chat/${channel}/events`
   );
 
@@ -106,14 +109,14 @@ export default () => {
             className="flex flex-1 flex-col gap-4 overflow-y-auto"
             ref={scrollRef}
           >
-            {allMessages.map(({ message, sender }, index) => {
+            {allMessages.map(({ message, senderId }, index) => {
               return (
                 <p
                   className={classNames(
-                    "max-w-[30ch] rounded-md bg-blue-200 px-4 py-2 text-sm dark:bg-blue-800",
+                    "max-w-[30ch] rounded-md bg-blue-200 px-4 py-2 text-sm first:mt-auto dark:bg-blue-800",
                     {
-                      "mr-auto": sender !== id,
-                      "ml-auto": sender === id,
+                      "mr-auto": senderId !== id,
+                      "ml-auto": senderId === id,
                     }
                   )}
                   key={index}
