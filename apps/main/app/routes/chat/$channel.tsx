@@ -113,10 +113,10 @@ export default () => {
               return (
                 <p
                   className={classNames(
-                    "max-w-[30ch] rounded-md bg-blue-200 px-4 py-2 text-sm first:mt-auto dark:bg-blue-800",
+                    "max-w-[30ch] rounded-md px-4 py-2 text-sm first:mt-auto ",
                     {
-                      "mr-auto": senderId !== id,
-                      "ml-auto": senderId === id,
+                      "mr-auto bg-slate-200 dark:bg-slate-800": senderId !== id,
+                      "ml-auto bg-blue-200 dark:bg-blue-800": senderId === id,
                     }
                   )}
                   key={index}
