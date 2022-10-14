@@ -12,7 +12,8 @@ services = [
 ]
 
 routes = [
-	{ pattern = "bench.codes", custom_domain = true, zone_name = "bench.codes" }
+	{ pattern = "bench.codes", custom_domain = true, zone_name = "bench.codes" },
+	{ pattern = "www.bench.codes", custom_domain = true, zone_name = "bench.codes" }
 ]
 
 [site]
