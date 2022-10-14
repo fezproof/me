@@ -5,10 +5,18 @@ import classNames from "classnames";
 import { useEffect, useRef } from "react";
 import Bench from "~/components/Bench";
 import Button from "~/components/Button";
+import { userPrefs } from "~/cookies/user-prefs";
 import { useEventStream } from "~/hooks/useEventStream";
 
 export const loader = async ({ params, context, request }: LoaderArgs) => {
   if (!params.channel) return redirect("/chat", 301);
+
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie = (await userPrefs.parse(cookieHeader)) || {};
+
+  if (!cookie.username || !cookie.id) {
+    return redirect(`/chat/${params.channel}/join`);
+  }
 
   const url = new URL(request.url);
 
@@ -20,16 +28,23 @@ export const loader = async ({ params, context, request }: LoaderArgs) => {
     return redirect("/chat", 301);
   }
 
-  const roomUrl = new URL(`/chat/${params.channel}`, url);
+  const roomUrl = new URL(`/chat/${params.channel}/join`, url);
 
   return json({
     channel: params.channel,
-    id: request.headers.get("CF-Connecting-IP") as string,
+    id: cookie.id as string,
     roomLink: roomUrl.toString(),
   });
 };
 
 export const action = async ({ request, context, params }: ActionArgs) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie = (await userPrefs.parse(cookieHeader)) || {};
+
+  if (!cookie.username || !cookie.id) {
+    return redirect(`/chat/${params.channel}/join`);
+  }
+
   const url = new URL(request.url);
 
   const { message } = Object.fromEntries(await request.formData());
@@ -46,7 +61,8 @@ export const action = async ({ request, context, params }: ActionArgs) => {
     body: JSON.stringify({
       data: {
         message,
-        senderId: request.headers.get("CF-Connecting-IP") as string,
+        senderId: cookie.id as string,
+        username: cookie.username as string,
       },
       topic: "chatMessageReceived",
       channel: params.channel,
@@ -59,9 +75,11 @@ export const action = async ({ request, context, params }: ActionArgs) => {
 export default () => {
   const { channel, id, roomLink } = useLoaderData<typeof loader>();
 
-  const { allMessages } = useEventStream<{ message: string; senderId: string }>(
-    `/chat/${channel}/events`
-  );
+  const { allMessages } = useEventStream<{
+    message: string;
+    senderId: string;
+    username: string;
+  }>(`/chat/${channel}/events`);
 
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -108,9 +126,9 @@ export default () => {
             className="flex flex-1 flex-col gap-4 overflow-y-auto"
             ref={scrollRef}
           >
-            {allMessages.map(({ message, senderId }, index) => {
+            {allMessages.map(({ message, senderId, username }, index) => {
               return (
-                <p
+                <div
                   className={classNames(
                     "max-w-[30ch] rounded-md px-4 py-2 text-sm first:mt-auto ",
                     {
@@ -120,8 +138,15 @@ export default () => {
                   )}
                   key={index}
                 >
-                  {message}
-                </p>
+                  <div className="flex flex-col flex-nowrap items-start justify-start gap-0">
+                    {senderId !== id && (
+                      <span className="text-sm text-slate-800 dark:text-slate-200">
+                        {username}
+                      </span>
+                    )}
+                    <p>{message}</p>
+                  </div>
+                </div>
               );
             })}
           </div>
