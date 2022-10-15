@@ -1,23 +1,43 @@
-import { Router } from "itty-router";
+import { Environment } from ".";
 
-export type Environment = {};
+import { initTRPC } from "@trpc/server";
+import { z } from "zod";
 
-const router = Router();
+const t = initTRPC.context<{ env: Environment }>().create();
 
-router.post("/new", async (_, env: Environment) => {
-  return new Response("A", { status: 200 });
+const publicProcedure = t.procedure;
+const router = t.router;
+
+const roomRouter = router({
+  get: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx: { env } }) => {
+      const id = env.DO_ROOM.idFromString(input);
+      const stub = env.DO_ROOM.get(id);
+
+      const result = await stub.fetch("https://emitter.io/");
+      return result.json<{ name: string; id: string }>();
+    }),
 });
 
-router.get("/player/list", async (_, env: Environment) => {
-  return new Response("A", { status: 200 });
+export const appRouter = router({
+  new: publicProcedure
+    .input(z.object({ name: z.string().min(1).max(32) }))
+    .mutation(async ({ input, ctx: { env } }) => {
+      const id = env.DO_ROOM.newUniqueId();
+      const stub = env.DO_ROOM.get(id);
+
+      const result = await stub.fetch(`https://emitter.io/new`, {
+        method: "post",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      if (!result.ok) {
+        throw new Error("Failed to create room");
+      }
+
+      return { id: id.toString(), name: input.name };
+    }),
+  room: roomRouter,
 });
-
-router.post("/join/:id", async (_, env: Environment) => {
-  return new Response("A", { status: 200 });
-});
-
-router.get("/game/:id");
-
-router.all("*", () => new Response("Not Found.", { status: 404 }));
-
-export { router };

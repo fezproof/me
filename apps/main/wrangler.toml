@@ -8,7 +8,8 @@ compatibility_flags = ["streams_enable_constructors"]
 account_id = "90101201ef6f6f2b460284210d2037db"
 
 services = [
-  { binding = "EMITTER", service = "emitter-service" }
+  { binding = "EMITTER", service = "emitter-service" },
+  { binding = "PLANNING", service = "planning-service" }
 ]
 
 routes = [

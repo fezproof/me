@@ -1,21 +1,24 @@
 import type { ActionArgs } from "@remix-run/cloudflare";
-import { json, redirect } from "@remix-run/cloudflare";
+import { redirect } from "@remix-run/cloudflare";
 import { Form, useActionData } from "@remix-run/react";
+import { z } from "zod";
+import { getPlanningClient } from "~/clients/planningClient";
 import Bench from "~/components/Bench";
 import Button from "~/components/Button";
+import TextInput from "~/components/TextInput";
+
+const formSchema = z.object({ name: z.string().max(32).min(1) });
 
 export const action = async ({ request, context }: ActionArgs) => {
-  const url = new URL(request.url);
+  const formData = Object.fromEntries(await request.formData());
 
-  const data = Object.fromEntries(await request.formData());
+  const { name } = formSchema.parse(formData);
 
-  const result = await context.EMITTER.fetch(`${url.origin}/channel/new`);
+  const { id } = await getPlanningClient(context.PLANNING.fetch).new.mutate({
+    name,
+  });
 
-  if (!result.ok) return json({ error: result.statusText });
-
-  const channel = await result.text();
-
-  return redirect(`/planning/${channel}`);
+  return redirect(`/planning/${id}`);
 };
 
 export default () => {
@@ -29,12 +32,7 @@ export default () => {
       <Form method="post" className="mb-4">
         <label>
           <span className="mb-2 block">Room name</span>
-          <input
-            className="mb-4 block w-full rounded-md bg-slate-200 px-4 py-2 outline-none ring-black focus:ring-2 dark:bg-slate-600 dark:ring-white"
-            type="text"
-            name="message"
-            required
-          />
+          <TextInput name="name" required />
         </label>
 
         <Button type="submit">Create new room</Button>

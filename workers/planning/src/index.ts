@@ -1,10 +1,21 @@
-import { router } from "./router";
+import {} from "@trpc/server";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { appRouter } from "./router";
 
-export type Environment = {};
+export type Environment = { DO_ROOM: DurableObjectNamespace };
+
+export { RoomDurableObject } from "./durableObjects/RoomDurableObject";
 
 const worker: ExportedHandler<Environment> = {
-  async fetch(...args) {
-    return router.handle(...args);
+  async fetch(request, env) {
+    return fetchRequestHandler({
+      endpoint: "",
+      req: request,
+      router: appRouter,
+      createContext: () => ({
+        env,
+      }),
+    });
   },
 };
 
