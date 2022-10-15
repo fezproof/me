@@ -7,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import styles from "~/styles/app.css";
 
 export function links() {
@@ -19,6 +20,8 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
+const queryClient = new QueryClient();
+
 export default function App() {
   return (
     <html lang="en">
@@ -27,7 +30,9 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-gray-50 text-black dark:bg-slate-900 dark:text-white">
-        <Outlet />
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

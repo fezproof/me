@@ -1,19 +1,19 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { userPrefs } from "~/cookies/user-prefs";
 import { v4 as uuid } from "uuid";
 import Button from "~/components/Button";
+import { parseUserCookie, serializeUserPrefs } from "~/cookies/user-prefs";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await userPrefs.parse(cookieHeader)) || {};
-  return json({ username: cookie.username });
+  const userPrefs = await parseUserCookie(cookieHeader);
+  return json({ username: userPrefs.username });
 };
 
 export async function action({ request, params }: ActionArgs) {
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await userPrefs.parse(cookieHeader)) || {};
+  const userPrefs = await parseUserCookie(cookieHeader);
   const formData = await request.formData();
 
   const username = formData.get("username");
@@ -22,15 +22,15 @@ export async function action({ request, params }: ActionArgs) {
     return json({ error: "Username is requried" });
   }
 
-  cookie.username = username;
+  userPrefs.username = username;
 
-  if (!cookie.id) {
-    cookie.id = uuid();
+  if (!userPrefs.id) {
+    userPrefs.id = uuid();
   }
 
   return redirect(`/chat/${params.channel}`, {
     headers: {
-      "Set-Cookie": await userPrefs.serialize(cookie),
+      "Set-Cookie": await serializeUserPrefs(userPrefs),
     },
   });
 }
