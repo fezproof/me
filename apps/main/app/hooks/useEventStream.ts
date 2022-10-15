@@ -1,27 +1,58 @@
 import { useEffect, useState } from "react";
 
-export const useEventStream = <T>(href: string) => {
-  const [data, setData] = useState<T[]>([]);
+export interface Message<T> {
+  data: T;
+  topic: string;
+  channel: string;
+}
+
+interface UseEventStreamOptions<T> {
+  onMessage: (message: Message<T>) => void;
+}
+
+export const useEventStream = <T>(
+  href: string,
+  { onMessage }: UseEventStreamOptions<T>
+) => {
+  const [eventSource, setEventSource] = useState<EventSource>();
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
+    setIsConnected(false);
     const eventSource = new EventSource(href);
 
-    const handler = (event: MessageEvent) => {
-      const { data } = JSON.parse(event.data) as {
-        data: unknown;
-        topic: string;
-        channel: string;
-      };
+    setEventSource(eventSource);
 
-      setData((previous) => [...previous, data as T]);
-    };
-
-    eventSource.addEventListener("message", handler);
+    eventSource.addEventListener("open", () => {
+      setIsLoading(false);
+      setIsConnected(true);
+    });
 
     return () => {
-      eventSource.removeEventListener("message", handler);
+      eventSource.close();
     };
   }, [href]);
 
-  return { allMessages: data, latestMessage: data.at(-1) };
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const message = JSON.parse(event.data) as Message<T>;
+
+      onMessage(message);
+    };
+
+    console.log("listen");
+
+    eventSource?.addEventListener("message", handler);
+
+    return () => {
+      eventSource?.removeEventListener("message", handler);
+    };
+  }, [eventSource, onMessage]);
+
+  return {
+    isConnected,
+    isLoading,
+  };
 };

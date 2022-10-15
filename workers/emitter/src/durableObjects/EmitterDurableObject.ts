@@ -79,6 +79,8 @@ export class EmitterDurableObject implements DurableObject {
         send("message", { topic, channel: channel, data });
       };
 
+      send("connected", { data: { epoch: Date.now() }, topic, channel });
+
       return this.emitter.on(topic, handle);
     });
   }

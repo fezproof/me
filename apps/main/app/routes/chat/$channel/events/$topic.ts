@@ -4,6 +4,6 @@ export const loader = async ({ request, context, params }: LoaderArgs) => {
   const url = new URL(request.url);
 
   return context.EMITTER.fetch(
-    `${url.origin}/subscribe/${params.channel}?topic=chatMessageReceived`
+    `${url.origin}/subscribe/${params.channel}?topic=${params.topic}`
   );
 };
