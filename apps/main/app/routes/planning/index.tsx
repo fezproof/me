@@ -2,7 +2,7 @@ import type { ActionArgs } from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
 import { Form, useActionData } from "@remix-run/react";
 import { z } from "zod";
-import { getPlanningClient } from "~/clients/planningClient";
+import { planningClient } from "~/clients/planningClient";
 import Bench from "~/components/Bench";
 import Button from "~/components/Button";
 import TextInput from "~/components/TextInput";
@@ -14,7 +14,7 @@ export const action = async ({ request, context }: ActionArgs) => {
 
   const { name } = formSchema.parse(formData);
 
-  const { id } = await getPlanningClient(context.PLANNING.fetch).new.mutate({
+  const { id } = await planningClient.room.new.mutate({
     name,
   });
 

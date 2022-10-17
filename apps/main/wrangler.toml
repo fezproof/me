@@ -12,6 +12,7 @@ services = [
   { binding = "PLANNING", service = "planning-service" }
 ]
 
+[env.production]
 routes = [
 	{ pattern = "bench.codes", custom_domain = true, zone_name = "bench.codes" },
 	{ pattern = "www.bench.codes", custom_domain = true, zone_name = "bench.codes" }

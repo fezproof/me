@@ -28,7 +28,6 @@ addEventListener("fetch", (event) => {
     getLoadContext: () => ({
       cf: event.request.cf,
       EMITTER: createServiceBindingShim(global.EMITTER, '8788'),
-      PLANNING: createServiceBindingShim(global.PLANNING, '8789')
     }),
   });
 

@@ -9,8 +9,5 @@ declare module "@remix-run/cloudflare" {
     EMITTER: {
       fetch: (url: string, requestInit?: RequestInit) => Promise<Response>;
     };
-    PLANNING: {
-      fetch: typeof fetch;
-    };
   }
 }
