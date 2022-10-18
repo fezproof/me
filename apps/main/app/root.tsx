@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type { LinksFunction, MetaFunction } from "@remix-run/cloudflare";
 import {
   Links,
   LiveReload,
@@ -10,9 +10,9 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import styles from "~/styles/app.css";
 
-export function links() {
+export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: styles }];
-}
+};
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",

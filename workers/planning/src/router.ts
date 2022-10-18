@@ -1,7 +1,6 @@
-import { Environment } from ".";
-
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { Environment } from ".";
 
 const t = initTRPC.context<{ env: Environment }>().create();
 
@@ -37,7 +36,17 @@ const roomRouter = router({
       const stub = env.DO_ROOM.get(id);
 
       const result = await stub.fetch("https://emitter.io/");
-      return result.json<{ name: string; id: string }>();
+
+      const data = await result.json<{ name?: string; id: string }>();
+
+      if (!data.name) {
+        throw new TRPCError({
+          message: "Room does not exist",
+          code: "NOT_FOUND",
+        });
+      }
+
+      return data;
     }),
 
   updateRoomName: publicProcedure
