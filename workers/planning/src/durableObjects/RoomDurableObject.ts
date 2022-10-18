@@ -1,50 +1,82 @@
-import { Router } from "itty-router";
-import { Environment } from "..";
+import { initTRPC } from "@trpc/server";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { z } from "zod";
 import { createRoomeStorage, RoomStorage } from "../storage";
 
-const router = Router();
-
-interface RouterContext {
+interface Context extends Record<string, unknown> {
   roomStorage: RoomStorage;
-  id: string;
+  roomId: string;
 }
 
-router.post("/new", async (request, { roomStorage }: RouterContext) => {
-  if (await roomStorage.getRoomName()) {
-    return new Response("Room already created", { status: 400 });
-  }
+const playerSchema = z.object({ id: z.string().uuid(), name: z.string() });
 
-  if (!request.json) {
-    return new Response("Expected JSON input", { status: 406 });
-  }
+const t = initTRPC.context<Context>().create();
 
-  const { name }: { name: string } = await request.json();
+const publicProcedure = t.procedure;
+const router = t.router;
 
-  await roomStorage.setRoomName(name);
+const roomRouter = router({
+  new: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .mutation(async ({ ctx: { roomStorage, roomId }, input: { name } }) => {
+      if (await roomStorage.getRoomName()) {
+        return new Response("Room already created", { status: 400 });
+      }
 
-  return new Response("Success", { status: 200 });
-});
+      await roomStorage.setRoomName(name);
 
-router.get("/", async (_, { roomStorage, id }: RouterContext) => {
-  const name = await roomStorage.getRoomName();
-  return new Response(JSON.stringify({ name, id }), {
-    headers: {
-      "content-type": "application/json",
-    },
-  });
+      return { name, id: roomId };
+    }),
+  details: publicProcedure.query(async ({ ctx: { roomId, roomStorage } }) => {
+    const name = await roomStorage.getRoomName();
+    return { id: roomId, name };
+  }),
+  join: publicProcedure
+    .input(z.object({ userId: z.string().uuid(), userName: z.string() }))
+    .output(z.array(playerSchema))
+    .mutation(async ({ input: { userId, userName }, ctx: { roomStorage } }) => {
+      await roomStorage.putPlayer(userId, userName);
+
+      const playerMap = await roomStorage.getPlayerList();
+
+      return [...playerMap.values()];
+    }),
+
+  leave: publicProcedure
+    .input(z.object({ userId: z.string().uuid() }))
+    .output(z.array(playerSchema))
+    .mutation(async ({ input: { userId }, ctx: { roomStorage } }) => {
+      await roomStorage.deletePlayer(userId);
+
+      const playerMap = await roomStorage.getPlayerList();
+
+      return [...playerMap.values()];
+    }),
+  players: publicProcedure.query(async ({ ctx: { roomStorage } }) => {
+    const playerMap = await roomStorage.getPlayerList();
+
+    return [...playerMap.values()];
+  }),
 });
 
 export class RoomDurableObject implements DurableObject {
   state: DurableObjectState;
 
-  constructor(state: DurableObjectState, env: Environment) {
+  constructor(state: DurableObjectState) {
     this.state = state;
   }
 
   fetch(request: Request): Promise<Response> {
-    return router.handle(request, {
-      roomStorage: createRoomeStorage(this.state.storage),
-      id: this.state.id.toString(),
+    return fetchRequestHandler({
+      endpoint: "",
+      req: request,
+      router: roomRouter,
+      createContext: () => ({
+        roomId: this.state.id.toString(),
+        roomStorage: createRoomeStorage(this.state.storage),
+      }),
     });
   }
 }
+
+export type RoomRouter = typeof roomRouter;

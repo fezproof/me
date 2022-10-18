@@ -17,6 +17,11 @@ export const parseUserCookie = async (cookieHeader: string | null) => {
   return (cookie || {}) as UserPrefs;
 };
 
+export const getUserPrefs = async (request: Request) => {
+  const cookieHeader = request.headers.get("Cookie");
+  return parseUserCookie(cookieHeader);
+};
+
 export const serializeUserPrefs = (cookie: UserPrefs) => {
   return userPrefs.serialize(cookie);
 };

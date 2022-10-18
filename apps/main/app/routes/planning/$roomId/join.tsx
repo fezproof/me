@@ -36,7 +36,13 @@ export async function action({ request, params }: ActionArgs) {
     userPrefs.id = uuid();
   }
 
-  return redirect(`/chat/${params.channel}`, {
+  await planningClient.room.join.mutate({
+    roomId: params.roomId as string,
+    userId: userPrefs.id,
+    userName: username,
+  });
+
+  return redirect(`/planning/${params.roomId}`, {
     headers: {
       "Set-Cookie": await serializeUserPrefs(userPrefs),
     },

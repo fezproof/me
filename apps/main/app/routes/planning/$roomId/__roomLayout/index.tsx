@@ -1,6 +1,6 @@
 import type { LoaderArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { Link, useLoaderData, useParams } from "@remix-run/react";
 import { planningClient } from "~/clients/planningClient";
 
 export const loader = async ({ params, context, request }: LoaderArgs) => {
@@ -17,12 +17,12 @@ export const loader = async ({ params, context, request }: LoaderArgs) => {
 };
 
 export default () => {
-  const { roomId, roomName } = useLoaderData<typeof loader>();
+  const { roomName } = useLoaderData<typeof loader>();
 
   return (
-    <div className="mt-16">
-      {roomId}: {roomName}
-    </div>
+    <>
+      <h2 className="mb-8">{roomName}</h2>
+    </>
   );
 };
 
@@ -34,7 +34,13 @@ export function ErrorBoundary() {
         There was an error loading room by the id{" "}
         <span className="font-mono">{roomId}</span>.
       </p>
-      <p>Sorry.</p>
+      <p className="mb-8">Sorry.</p>
+      <Link
+        to="/planning"
+        className="rounded border border-black py-2 px-4 ring-black hover:ring-2 dark:border-white dark:ring-white"
+      >
+        Go back to Planning
+      </Link>
     </div>
   );
 }
