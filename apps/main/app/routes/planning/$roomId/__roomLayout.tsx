@@ -1,6 +1,7 @@
 import type { LoaderArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import { useEffect } from "react";
 import { planningClient } from "~/clients/planningClient";
 import { parseUserCookie } from "~/cookies/user-prefs";
 
@@ -20,11 +21,25 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
   return json({
     members,
+    roomId: params.roomId,
+    userId: userPrefs.id as string,
   });
 };
 
 export default () => {
-  const { members } = useLoaderData<typeof loader>();
+  const { members, roomId, userId } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    const handle = () => {
+      navigator.sendBeacon(`/planning/${roomId}/${userId}/leave`);
+    };
+
+    addEventListener("pagehide", handle);
+
+    return () => {
+      removeEventListener("pagehide", handle);
+    };
+  }, [roomId, userId]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -38,9 +53,29 @@ export default () => {
         <aside>
           <h3 className="mb-4 text-lg">Members</h3>
           <ul className="list-inside list-disc">
-            {members.map(({ id, name }) => (
-              <li key={id}>{name}</li>
-            ))}
+            {members.map(({ id, name }) => {
+              const kick = useFetcher();
+
+              return (
+                <li className="list-item" key={id}>
+                  <kick.Form
+                    className="inline"
+                    action={`/planning/${roomId}/${id}/kick`}
+                    method="post"
+                    replace
+                  >
+                    <span>{name} </span>
+                    <button
+                      title={`Kick '${name}'`}
+                      className="inline h-8 w-8 text-red-500"
+                      type="submit"
+                    >
+                      x
+                    </button>
+                  </kick.Form>
+                </li>
+              );
+            })}
           </ul>
         </aside>
       </div>
