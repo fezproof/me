@@ -1,6 +1,7 @@
 import type { LoaderArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
 import { Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import classNames from "classnames";
 import { useEffect } from "react";
 import { planningClient } from "~/clients/planningClient";
 import { parseUserCookie } from "~/cookies/user-prefs";
@@ -30,14 +31,19 @@ export default () => {
   const { members, roomId, userId } = useLoaderData<typeof loader>();
 
   useEffect(() => {
-    const handle = () => {
-      navigator.sendBeacon(`/planning/${roomId}/${userId}/leave`);
+    const handle = (event?: Event) => {
+      if (event && document.visibilityState === "visible") {
+        navigator.sendBeacon(`/planning/${roomId}/${userId}/avaliable`);
+      } else {
+        navigator.sendBeacon(`/planning/${roomId}/${userId}/away`);
+      }
     };
 
-    addEventListener("pagehide", handle);
+    addEventListener("visibilitychange", handle);
 
     return () => {
-      removeEventListener("pagehide", handle);
+      handle();
+      removeEventListener("visibilitychange", handle);
     };
   }, [roomId, userId]);
 
@@ -53,11 +59,17 @@ export default () => {
         <aside>
           <h3 className="mb-4 text-lg">Members</h3>
           <ul className="list-inside list-disc">
-            {members.map(({ id, name }) => {
+            {members.map(({ id, name, here }) => {
               const kick = useFetcher();
 
               return (
-                <li className="list-item" key={id}>
+                <li
+                  className={classNames("list-item", {
+                    "text-black dark:text-white": here,
+                    "text-slate-300 dark:text-slate-700": !here,
+                  })}
+                  key={id}
+                >
                   <kick.Form
                     className="inline"
                     action={`/planning/${roomId}/${id}/kick`}

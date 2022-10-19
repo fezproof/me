@@ -15,6 +15,19 @@ const t = initTRPC.context<Context>().create();
 const publicProcedure = t.procedure;
 const router = t.router;
 
+const playerRouter = router({
+  list: publicProcedure.query(async ({ ctx: { roomStorage } }) => {
+    const playerMap = await roomStorage.getPlayerList();
+
+    return [...playerMap.values()];
+  }),
+  updateStatus: publicProcedure
+    .input(z.object({ userId: z.string().uuid(), online: z.boolean() }))
+    .mutation(async ({ ctx: { roomStorage }, input: { userId, online } }) => {
+      await roomStorage.setPlayerStatus(userId, online);
+    }),
+});
+
 const roomRouter = router({
   new: publicProcedure
     .input(z.object({ name: z.string() }))
@@ -52,11 +65,7 @@ const roomRouter = router({
 
       return [...playerMap.values()];
     }),
-  players: publicProcedure.query(async ({ ctx: { roomStorage } }) => {
-    const playerMap = await roomStorage.getPlayerList();
-
-    return [...playerMap.values()];
-  }),
+  player: playerRouter,
 });
 
 export class RoomDurableObject implements DurableObject {

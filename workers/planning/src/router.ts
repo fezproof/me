@@ -90,8 +90,19 @@ const roomRouter = router({
       const players = await roomDoClient.leave.mutate({ userId });
       return players;
     }),
+  away: durableObjectProcedure
+    .input(z.object({ userId: z.string().uuid() }))
+    .mutation(async ({ ctx: { roomDoClient }, input: { userId } }) => {
+      return roomDoClient.player.updateStatus.mutate({ online: false, userId });
+    }),
+  avaliable: durableObjectProcedure
+    .input(z.object({ userId: z.string().uuid() }))
+    .mutation(async ({ ctx: { roomDoClient }, input: { userId } }) => {
+      return roomDoClient.player.updateStatus.mutate({ online: true, userId });
+    }),
+
   members: durableObjectProcedure.query(async ({ ctx: { roomDoClient } }) => {
-    return roomDoClient.players.query();
+    return roomDoClient.player.list.query();
   }),
 });
 
