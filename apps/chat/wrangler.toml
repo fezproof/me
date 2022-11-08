@@ -1,4 +1,4 @@
-name = "me-portfolio"
+name = "bench-chat"
 
 workers_dev = true
 main = "./build/index.js"
@@ -8,14 +8,12 @@ compatibility_flags = ["streams_enable_constructors"]
 account_id = "90101201ef6f6f2b460284210d2037db"
 
 services = [
-  { binding = "EMITTER", service = "emitter-service" },
-  { binding = "PLANNING", service = "planning-service" }
+  { binding = "EMITTER", service = "emitter-service" }
 ]
 
 [env.production]
 routes = [
-	{ pattern = "bench.codes", custom_domain = true, zone_name = "bench.codes" },
-	{ pattern = "www.bench.codes", custom_domain = true, zone_name = "bench.codes" }
+	{ pattern = "chat.bench.codes", custom_domain = true, zone_name = "bench.codes" }
 ]
 
 [site]
