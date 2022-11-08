@@ -7,10 +7,12 @@ import { planningClient } from "~/clients/planningClient";
 import { parseUserCookie } from "~/cookies/user-prefs";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
-  if (typeof params.roomId !== "string") return redirect("/planning", 301);
+  const { roomId } = params;
+
+  if (typeof roomId !== "string") return redirect("/planning", 301);
 
   const members = await planningClient.room.members.query({
-    roomId: params.roomId,
+    roomId,
   });
 
   const cookieHeader = request.headers.get("Cookie");
