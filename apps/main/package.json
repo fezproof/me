@@ -15,9 +15,9 @@
   "dependencies": {
     "@react-three/drei": "^9.32.7",
     "@react-three/fiber": "^8.8.8",
-    "@remix-run/cloudflare": "^1.7.2",
-    "@remix-run/cloudflare-workers": "^1.7.2",
-    "@remix-run/react": "^1.7.2",
+    "@remix-run/cloudflare": "^1.7.5",
+    "@remix-run/cloudflare-workers": "^1.7.5",
+    "@remix-run/react": "^1.7.5",
     "@tanstack/react-query": "^4.12.0",
     "@trpc/client": "10.0.0-proxy-beta.21",
     "@trpc/server": "10.0.0-proxy-beta.21",
@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.14.1",
-    "@remix-run/dev": "^1.7.2",
-    "@remix-run/eslint-config": "^1.7.2",
+    "@remix-run/dev": "^1.7.5",
+    "@remix-run/eslint-config": "^1.7.5",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "@types/three": "^0.144.0",
