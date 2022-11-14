@@ -35,3 +35,7 @@ export default function App() {
     </html>
   );
 }
+
+export function action() {
+  return { ok: true };
+}

@@ -79,9 +79,18 @@ export class EmitterDurableObject implements DurableObject {
         send("message", { topic, channel: channel, data });
       };
 
-      send("connected", { data: { epoch: Date.now() }, topic, channel });
+      const connectData = { data: { epoch: Date.now() }, topic, channel };
 
-      return this.emitter.on(topic, handle);
+      send("connected", connectData);
+
+      console.log("CONNECTED: ", connectData);
+
+      const unsubscribe = this.emitter.on(topic, handle);
+      return () => {
+        console.log("UNSUBSCRIBE: ", { topic, channel });
+
+        unsubscribe();
+      };
     });
   }
 }

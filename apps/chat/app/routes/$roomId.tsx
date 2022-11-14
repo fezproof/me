@@ -2,7 +2,9 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Form, useLoaderData } from "@remix-run/react";
+import { useEffect } from "react";
 import { useEventSource } from "~/hooks/useEventSource";
+import { useRevalidator } from "~/hooks/useRevalidator";
 import { emitter, EVENTS } from "~/services/emitter";
 
 export const loader = async ({ params: { roomId } }: LoaderArgs) => {
@@ -37,6 +39,11 @@ export default function Index() {
   const data = useLoaderData<typeof loader>();
 
   const eventData = useEventSource(data.roomId, EVENTS.CHANGED);
+
+  const revalidator = useRevalidator();
+  useEffect(() => {
+    revalidator.revalidate();
+  }, [eventData, revalidator]);
 
   return (
     <>

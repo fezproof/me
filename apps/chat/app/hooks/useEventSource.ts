@@ -15,6 +15,7 @@ export const useEventSource = (channel: string, topic: EVENTS) => {
     eventSource.addEventListener("message", handler);
 
     return () => {
+      eventSource.removeEventListener("message", handler);
       eventSource.close();
     };
   }, [channel, topic]);

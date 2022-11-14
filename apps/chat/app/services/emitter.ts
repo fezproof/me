@@ -34,7 +34,7 @@ const doEmitterFetch: typeof fetch = async (request, requestInit) => {
 };
 
 const createEmitterClient = <E extends EventsMap = DefaultEvents>() => {
-  const url = new URL("https://bench.codes");
+  const url = new URL("https://emitter.io");
 
   if (!hasGlobalEmitter) {
     url.hostname = "localhost";
