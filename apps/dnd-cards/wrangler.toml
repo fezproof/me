@@ -1,0 +1,13 @@
+name = "dnd-cards"
+compatibility_date = "2022-12-02"
+account_id = "90101201ef6f6f2b460284210d2037db"
+
+main = "./dist/server.js"
+
+[site]
+bucket= "./dist/public"
+
+[env.production]
+routes = [
+	{ pattern = "dnd-cards.bench.codes", custom_domain = true, zone_name = "bench.codes" }
+]
