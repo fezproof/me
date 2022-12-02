@@ -1,0 +1,31 @@
+{
+  "name": "solid-chat",
+  "scripts": {
+    "dev": "solid-start dev --port 3002",
+    "build": "solid-start build",
+    "start": "solid-start start",
+    "preview": "wrangler dev --local"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.18.0",
+    "autoprefixer": "^10.4.12",
+    "postcss": "^8.4.18",
+    "solid-start-cloudflare-workers": "^0.2.5",
+    "solid-start-node": "^0.2.0",
+    "tailwindcss": "^3.2.0",
+    "typescript": "^4.8.4",
+    "vite": "^3.1.8",
+    "wrangler": "2.1.9"
+  },
+  "dependencies": {
+    "@solidjs/meta": "^0.28.0",
+    "@solidjs/router": "^0.5.0",
+    "solid-js": "^1.6.0",
+    "solid-start": "^0.2.0",
+    "undici": "^5.11.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

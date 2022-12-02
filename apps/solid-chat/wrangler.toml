@@ -1,0 +1,7 @@
+name = "solid-chat"
+main = "./dist/server.js"
+account_id = "90101201ef6f6f2b460284210d2037db"
+compatibility_date = "2022-11-14"
+
+[site]
+bucket= "./dist/public"
