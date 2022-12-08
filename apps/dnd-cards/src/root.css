@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@page {
+  size: auto; /* auto is the initial value */
+  margin: 0.5cm; /* this affects the margin in the printer settings */
+}

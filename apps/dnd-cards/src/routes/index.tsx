@@ -1,32 +1,36 @@
-import { A } from "solid-start";
-import Counter from "~/components/Counter";
+import { createEffect, createMemo, createSignal, For } from "solid-js";
+import CardDisplay from "~/components/CardDisplay";
+import { data } from "~/data/items.json";
 
 export default function Home() {
+  const [category, setCategory] = createSignal(
+    data.equipmentCategories[0].index
+  );
+
+  const cardData = createMemo(() => {
+    return (
+      data.equipmentCategories.find((c) => c.index === category())?.equipment ??
+      []
+    );
+  });
+
   return (
-    <main class="text-center mx-auto text-gray-700 p-4">
-      <h1 class="max-6-xs text-6xl text-sky-700 font-thin uppercase my-16">
-        Hello world!
-      </h1>
-      <Counter />
-      <p class="mt-8">
-        Visit{" "}
-        <a
-          href="https://solidjs.com"
-          target="_blank"
-          class="text-sky-600 hover:underline"
-          rel="noreferrer"
+    <main>
+      <div class="print:hidden p-4">
+        <select
+          class="border border-gray-200"
+          name="type"
+          value={category()}
+          onChange={(e) => {
+            setCategory(e.currentTarget.value);
+          }}
         >
-          solidjs.com
-        </a>{" "}
-        to learn how to build Solid apps.
-      </p>
-      <p class="my-4">
-        <span>Home</span>
-        {" - "}
-        <A href="/about" class="text-sky-600 hover:underline">
-          About Page
-        </A>{" "}
-      </p>
+          <For each={data.equipmentCategories}>
+            {({ index, name }) => <option value={index}>{name}</option>}
+          </For>
+        </select>
+      </div>
+      <CardDisplay data={cardData()} />
     </main>
   );
 }
