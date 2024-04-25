@@ -1,21 +1,9 @@
 {
   "private": true,
   "sideEffects": false,
-  "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "deploy": "turbo run deploy"
-  },
-  "devDependencies": {
-    "prettier": "^2.7.1",
-    "prettier-plugin-tailwindcss": "^0.1.13",
-    "turbo": "^1.5.5"
-  },
+  "scripts": {},
+  "devDependencies": {},
   "engines": {
-    "node": ">=16"
-  },
-  "workspaces": [
-    "workers/*",
-    "apps/*"
-  ]
+    "node": ">=18"
+  }
 }
